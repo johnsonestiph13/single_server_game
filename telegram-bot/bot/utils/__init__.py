@@ -2,13 +2,10 @@
 # Estif Bingo 24/7 - Utilities Package
 # Exports all utility functions and classes
 
-import logging
-
-# Setup package logger
-logger = logging.getLogger(__name__)
+# ==================== SIMPLE INIT LOGGING (NO CIRCULAR IMPORT) ====================
+print("[utils] Initializing utilities package...")
 
 # ==================== LOGGER ====================
-
 from bot.utils.logger import (
     get_logger,
     setup_logger,
@@ -34,7 +31,6 @@ from bot.utils.logger import (
 )
 
 # ==================== SECURITY ====================
-
 from bot.utils.security import (
     # JWT functions
     generate_jwt,
@@ -76,119 +72,81 @@ from bot.utils.security import (
 )
 
 # ==================== CRYPTO ====================
-
 from bot.utils.crypto import (
-    # Fernet encryption
     encrypt_data,
     decrypt_data,
-    # Phone encryption
     encrypt_phone,
     decrypt_phone,
     hash_phone,
     mask_phone,
     normalize_phone_for_display,
-    # Bank details encryption
     encrypt_bank_details,
     decrypt_bank_details,
     mask_account_number,
-    # Password hashing
-    hash_password as crypto_hash_password,
-    verify_password as crypto_verify_password,
-    # Token generation
-    generate_secure_token as crypto_generate_secure_token,
-    generate_reference_id,
-    generate_idempotency_key as crypto_generate_idempotency_key,
-    # Hashing utilities
     sha256_hash,
     md5_hash,
     hmac_sign,
     verify_hmac,
-    # Key derivation
     derive_key,
-    # Validation
     is_valid_encrypted_data,
-    # Secure comparison
     secure_compare,
-    # Encrypted storage class
     EncryptedStorage,
     encrypted_storage,
 )
 
 # ==================== VALIDATORS ====================
-
 from bot.utils.validators import (
-    # Phone validation
     is_valid_ethiopian_phone,
     is_valid_kenyan_phone,
     is_valid_phone,
     normalize_phone,
     get_phone_carrier,
     validate_phone_with_carrier,
-    # Amount validation
     validate_amount,
     validate_deposit_amount,
     validate_withdrawal_amount,
     validate_transfer_amount,
-    # Bank validation
     validate_account_number,
     validate_account_holder,
-    # Transaction validation
     validate_transaction_id,
-    # Email validation
     is_valid_email,
     normalize_email,
-    # Username validation
     is_valid_username,
-    # Date validation
     is_valid_date,
     is_valid_datetime,
-    # Cartela validation
     is_valid_cartela_id,
     validate_cartela_selection,
-    # Referral validation
     is_valid_referral_code,
-    # URL validation
     is_valid_url,
-    # Password validation
     is_strong_password,
-    # Sanitization
     sanitize_string,
     sanitize_numeric,
     sanitize_boolean,
 )
 
 # ==================== OTP ====================
-
 from bot.utils.otp import (
-    # Generation
     generate_otp as otp_generate_otp,
     generate_alphanumeric_otp,
     generate_otp_hash,
     verify_otp_hash,
-    # Storage
     store_otp,
     get_stored_otp,
     verify_stored_otp,
     delete_stored_otp,
     clear_expired_otps,
-    # Attempt tracking
     record_otp_attempt,
     get_otp_attempts,
     reset_otp_attempts,
     is_otp_locked,
-    # Rate limiting
     check_otp_rate_limit,
     record_otp_request,
-    # Complete workflow
     create_otp,
     validate_otp,
     request_new_otp,
-    # TOTP
     TOTP,
-    # Utility
     format_otp_message,
     cleanup_otp_storage,
-    # Constants
     OTP_LENGTH,
     OTP_EXPIRY_SECONDS,
     MAX_OTP_ATTEMPTS,
@@ -197,27 +155,22 @@ from bot.utils.otp import (
 )
 
 # ==================== METRICS ====================
-
 from bot.utils.metrics import (
-    # Classes
     MetricsCollector,
     PerformanceMonitor,
     HealthChecker,
     BusinessMetrics,
     MetricType,
     MetricUnit,
-    # Singleton instances
     metrics_collector,
     performance_monitor,
     health_checker,
     business_metrics,
-    # Decorators
     track_time,
     track_request,
 )
 
 # ==================== CARTELA GENERATOR ====================
-
 from bot.utils.cartela_generator import (
     TOTAL_CARTELAS,
     GRID_SIZE,
@@ -240,15 +193,12 @@ from bot.utils.cartela_generator import (
 )
 
 # ==================== MAIN UTILITIES ====================
-
 from bot.utils.main import (
-    # String utilities
     truncate_text,
     slugify,
     mask_string,
     mask_phone as main_mask_phone,
     mask_email,
-    # Validation utilities
     is_valid_ethiopian_phone as main_is_valid_ethiopian_phone,
     is_valid_kenyan_phone as main_is_valid_kenyan_phone,
     is_valid_phone as main_is_valid_phone,
@@ -257,35 +207,27 @@ from bot.utils.main import (
     validate_amount as main_validate_amount,
     validate_account_number as main_validate_account_number,
     validate_transaction_id as main_validate_transaction_id,
-    # Token generation
     generate_otp as main_generate_otp,
     generate_token,
     generate_reference_id as main_generate_reference_id,
     hash_token,
-    # Date/time utilities
     format_datetime,
     format_date,
     format_time_remaining,
     time_ago,
-    # Number utilities
     format_currency,
     format_percentage,
     safe_divide,
-    # Dictionary utilities
     safe_get,
     merge_dicts,
-    # Decorators
     retry,
     timing_decorator,
 )
 
 # ==================== CONVENIENCE RE-EXPORTS ====================
-
-# Commonly used functions (aliases for convenience)
-generate_secure_token = crypto_generate_secure_token
-generate_idempotency_key = crypto_generate_idempotency_key
-hash_password = crypto_hash_password
-verify_password = crypto_verify_password
+# Alias for commonly used functions
+generate_secure_token = generate_secure_token
+generate_idempotency_key = generate_idempotency_key
 
 # ==================== PACKAGE EXPORTS ====================
 
@@ -475,4 +417,5 @@ __all__ = [
     'timing_decorator',
 ]
 
-logger.info("Utils package initialized")
+# ==================== PACKAGE INITIALIZATION LOG ====================
+print("[utils] Utilities package initialized successfully")
