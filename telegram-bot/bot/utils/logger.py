@@ -532,13 +532,23 @@ class SecurityLogger:
         )
 
 
-# ==================== EXPORTS ====================
+# Add this at the bottom of your logger.py, after the existing code
+
+# ==================== MAIN LOGGER INSTANCE ====================
+
+# This is what security.py is trying to import
+logger = get_logger("estif_bingo")
+
+# ==================== UPDATE EXPORTS ====================
 
 __all__ = [
     # Main logger functions
     'get_logger',
     'setup_logger',
     'temp_log_level',
+    
+    # Main logger instance
+    'logger',  # ← ADD THIS LINE
     
     # Specialized loggers
     'RequestLogger',
