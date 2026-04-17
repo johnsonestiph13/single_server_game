@@ -8,15 +8,52 @@ from datetime import datetime
 from bot.config import config
 from bot.utils.logger import logger
 
-# Import all blueprints
-from bot.api.auth import register_auth_routes
+
+# ==================== AUTH IMPORTS ====================
+from bot.api.auth import (
+    generate_jwt,
+    generate_refresh_token,
+    verify_jwt,
+    refresh_jwt,
+    generate_jwt_for_game,
+    generate_ws_token,
+    verify_ws_token,
+    token_required,
+    optional_token_required,
+    api_key_required,
+    get_current_user_from_request,
+    generate_api_key,
+    hash_api_key,
+    register_auth_routes,
+)
+
+# ==================== BALANCE OPS IMPORTS ====================
+from bot.api.balance_ops import (
+    get_balance,
+    add_balance,
+    deduct_balance,
+    set_balance,
+    add_balance_bulk,
+    deduct_balance_bulk,
+    check_sufficient_balance,
+    validate_and_deduct,
+    get_balance_history,
+    get_balance_summary,
+    admin_adjust_balance,
+    transfer_balance,
+)
+
+# ==================== COMMISSION IMPORTS ====================
+from bot.api.commission import (
+    calculate_commission,
+    calculate_round_commission,
+)
 from bot.api.game_api import game_api_bp
 from bot.api.webhooks import webhook_bp
 from bot.api.commission import commission_bp
 from bot.api.mini_bingo_api import mini_bingo_bp
 from bot.api.admin_api import admin_api_bp
-from bot.api.balance_ops import get_balance, add_balance, deduct_balance, set_balance
-from bot.api.commission import calculate_commission
+
 
 # Create main API blueprint
 api_bp = Blueprint('api', __name__, url_prefix='/api')
@@ -301,6 +338,22 @@ def get_api_version():
 # ==================== EXPORTS ====================
 
 __all__ = [
+    # Auth functions
+    'generate_jwt',
+    'generate_refresh_token',
+    'verify_jwt',
+    'refresh_jwt',
+    'generate_jwt_for_game',
+    'generate_ws_token',
+    'verify_ws_token',
+    'token_required',
+    'optional_token_required',
+    'api_key_required',
+    'get_current_user_from_request',
+    'generate_api_key',
+    'hash_api_key',
+    'register_auth_routes',
+    
     # Blueprints
     'api_bp',
     'game_api_bp',
@@ -317,14 +370,23 @@ __all__ = [
     # Constants
     'API_VERSION',
     
-    # Re-export balance operations for convenience
+    # Balance operations
     'get_balance',
     'add_balance',
     'deduct_balance',
     'set_balance',
+    'add_balance_bulk',
+    'deduct_balance_bulk',
+    'check_sufficient_balance',
+    'validate_and_deduct',
+    'get_balance_history',
+    'get_balance_summary',
+    'admin_adjust_balance',
+    'transfer_balance',
     
-    # Re-export commission calculation
+    # Commission calculation
     'calculate_commission',
+    'calculate_round_commission',
 ]
 
 
