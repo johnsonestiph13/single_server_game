@@ -410,6 +410,27 @@ def register_auth_routes(bp):
 
 
 # ==================== WEBSOCKET AUTHENTICATION ====================
+def generate_jwt_for_game(telegram_id: int) -> str:
+    """
+    Generate JWT token specifically for game access.
+    
+    Args:
+        telegram_id: User's Telegram ID
+    
+    Returns:
+        str: JWT token for game
+    """
+    payload = {
+        'user_id': telegram_id,
+        'exp': datetime.utcnow() + timedelta(hours=2),
+        'iat': datetime.utcnow(),
+        'purpose': 'game_access',
+        'type': 'game'
+    }
+    
+    token = jwt.encode(payload, JWT_SECRET, algorithm='HS256')
+    return token
+
 
 def generate_ws_token(user_id: int) -> str:
     """
@@ -511,7 +532,6 @@ def hash_api_key(api_key: str) -> str:
     """
     return hashlib.sha256(api_key.encode()).hexdigest()
 
-
 # ==================== EXPORTS ====================
 
 __all__ = [
@@ -520,7 +540,8 @@ __all__ = [
     'generate_refresh_token',
     'verify_jwt',
     'refresh_jwt',
-    
+    'generate_jwt_for_game',  # ← ADD THIS
+ 
     # Decorators
     'token_required',
     'optional_token_required',
