@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Estif Bingo 24/7 - Advanced Bingo Game</title>
+    <link rel="stylesheet" href="/static/advanced_bingo.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header -->
+        <div class="game-header">
+            <div class="logo">
+                <h1>⚡ ESTIF BINGO 24/7 ⚡</h1>
+                <p>Real-time Multiplayer Bingo</p>
+            </div>
+            <div class="player-info">
+                <div class="balance-card">
+                    <div class="balance-label">💰 BALANCE</div>
+                    <div class="balance-value" id="balance">0 ETB</div>
+                </div>
+                <div class="sound-selector">
+                    <select id="soundPack" onchange="changeSoundPack()">
+                        <option value="pack1">🎵 Classic Bingo</option>
+                        <option value="pack2">🎵 Modern Beat</option>
+                        <option value="pack3">🎵 Arcade Fun</option>
+                        <option value="pack4">🎵 Casino Style</option>
+                    </select>
+                </div>
+                <button class="exit-btn" onclick="exitGame()">🚪 EXIT</button>
+            </div>
+        </div>
+
+        <!-- Game Status -->
+        <div class="game-status">
+            <div class="phase-badge" id="phaseBadge">🟢 SELECTION PHASE</div>
+            <div class="timer" id="timer">00:00</div>
+            <div class="selected-count" id="selectedCount">📊 Selected: 0/0</div>
+        </div>
+
+        <!-- Called Numbers -->
+        <div class="called-numbers">
+            <div class="called-title">
+                <span>🎲 CALLED NUMBERS</span>
+                <span id="calledCount">0/75</span>
+            </div>
+            <div class="numbers-grid" id="calledNumbersGrid"></div>
+        </div>
+
+        <!-- Cartelas Grid (Scrollable) -->
+        <div class="cartelas-container">
+            <div class="cartelas-title">
+                <span>🎯 SELECT YOUR CARTELAS (Max 4)</span>
+                <span id="selectionStatus">Selected: 0/4</span>
+            </div>
+            <div class="cartelas-grid" id="cartelasGrid">
+                <div class="text-center" style="padding: 40px;">Loading cartelas...</div>
+            </div>
+        </div>
+
+        <!-- My Cartelas (Displayed after selection ends) -->
+        <div class="my-cartelas" id="myCartelasContainer" style="display: none;">
+            <div class="my-cartelas-title">🎴 MY CARTELAS</div>
+            <div class="my-cartelas-grid" id="myCartelasGrid"></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons" id="actionButtons">
+            <button class="btn btn-primary" onclick="showCartelaSelection()">🎯 SELECT CARTELAS</button>
+            <button class="btn btn-success" id="confirmBtn" style="display: none;" onclick="confirmSelection()">✅ CONFIRM SELECTION</button>
+            <button class="btn btn-danger" id="cancelBtn" style="display: none;" onclick="cancelSelection()">❌ CANCEL</button>
+        </div>
+    </div>
+
+    <!-- Winner Modal -->
+    <div id="winnerModal" class="winner-modal">
+        <div class="winner-content">
+            <div class="winner-icon">🏆</div>
+            <div class="winner-title">BINGO!</div>
+            <div class="winner-amount" id="winnerAmount">0 ETB</div>
+            <div class="winner-pattern" id="winnerPattern">Horizontal Line</div>
+            <div class="winner-cartela" id="winnerCartela"></div>
+            <div class="next-round-timer" id="nextRoundTimer">Next round starts in 6s</div>
+            <button class="btn btn-primary" onclick="closeWinnerModal()">Continue</button>
+        </div>
+    </div>
+
+    <!-- Insufficient Balance Modal -->
+    <div id="balanceModal" class="modal">
+        <div class="modal-content">
+            <div class="winner-icon">⚠️</div>
+            <h2>Insufficient Balance!</h2>
+            <p>You need at least <strong id="requiredBalance">10 ETB</strong> to play.</p>
+            <div class="modal-buttons">
+                <button class="btn btn-warning" onclick="watchOnly()">👁️ WATCH ONLY</button>
+                <button class="btn btn-success" onclick="chargeBalance()">💳 CHARGE BALANCE</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game In Progress Modal -->
+    <div id="gameProgressModal" class="game-progress-modal">
+        <div class="modal-content">
+            <div class="winner-icon">🎮</div>
+            <h2>Game in Progress!</h2>
+            <p>The current round is already in the drawing phase.</p>
+            <p>You can watch the game and join the next round!</p>
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="watchGame()">👁️ WATCH GAME</button>
+                <button class="btn btn-warning" onclick="closeGameProgressModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading game...</div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    <script src="/static/advanced_bingo.js"></script>
+</body>
+</html>

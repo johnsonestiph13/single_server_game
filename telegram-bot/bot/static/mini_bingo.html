@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Estif Bingo 24/7 - Mini Bingo (Practice Mode)</title>
+    <link rel="stylesheet" href="/static/mini_bingo.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header -->
+        <div class="game-header">
+            <div class="logo">
+                <h1>🎮 MINI BINGO 🎮</h1>
+                <p>Single-Player Practice Mode</p>
+            </div>
+            <div class="player-info">
+                <div class="balance-card">
+                    <div class="balance-label">💰 BALANCE</div>
+                    <div class="balance-value" id="balance">0 ETB</div>
+                </div>
+                <div class="sound-selector">
+                    <select id="soundPack" onchange="changeSoundPack()">
+                        <option value="pack1">🎵 Classic Bingo</option>
+                        <option value="pack2">🎵 Modern Beat</option>
+                        <option value="pack3">🎵 Arcade Fun</option>
+                        <option value="pack4">🎵 Casino Style</option>
+                    </select>
+                </div>
+                <button class="exit-btn" onclick="exitGame()">🚪 EXIT</button>
+            </div>
+        </div>
+
+        <!-- Game Status -->
+        <div class="game-status">
+            <h2>🎯 READY TO PLAY?</h2>
+            <div class="game-stats">
+                <div class="stat-item">
+                    <div class="stat-label">Game Cost</div>
+                    <div class="stat-value" id="gameCost">5 ETB</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Win Rate</div>
+                    <div class="stat-value" id="winRate">80%</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Win Amount</div>
+                    <div class="stat-value" id="winAmount">4 ETB</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Called Numbers -->
+        <div class="called-numbers" id="calledNumbersSection" style="display: none;">
+            <div class="called-title">
+                <span>🎲 CALLED NUMBERS</span>
+                <span id="calledCount">0/75</span>
+            </div>
+            <div class="numbers-grid" id="calledNumbersGrid"></div>
+        </div>
+
+        <!-- Cartela -->
+        <div class="cartela-container" id="cartelaContainer" style="display: none;">
+            <div class="cartela-title">
+                <span>🎴 YOUR CARTELA</span>
+                <span id="markedCount">Marked: 0/24</span>
+            </div>
+            <div class="cartela-grid" id="cartelaGrid"></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons" id="actionButtons">
+            <button class="btn btn-primary" id="startBtn" onclick="startGame()">🎮 START GAME</button>
+            <button class="btn btn-success" id="drawBtn" style="display: none;" onclick="drawNumber()">🎲 DRAW NUMBER</button>
+            <button class="btn btn-danger" id="endBtn" style="display: none;" onclick="endGame()">⏹️ END GAME</button>
+            <button class="btn btn-primary" id="playAgainBtn" style="display: none;" onclick="resetAndPlay()">🔄 PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <!-- Winner Modal -->
+    <div id="winnerModal" class="winner-modal">
+        <div class="winner-content">
+            <div class="winner-icon">🏆</div>
+            <div class="winner-title">BINGO!</div>
+            <div class="winner-amount" id="winnerAmount">0 ETB</div>
+            <div class="winner-pattern" id="winnerPattern">Horizontal Line</div>
+            <div class="winner-cartela" id="winnerCartela"></div>
+            <button class="btn btn-primary" onclick="closeWinnerModal()">Continue</button>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="gameoverModal" class="gameover-modal">
+        <div class="gameover-content">
+            <div class="gameover-icon">😢</div>
+            <h2>Game Over!</h2>
+            <p>No more numbers to draw.</p>
+            <p>Better luck next time!</p>
+            <div class="modal-buttons" style="margin-top: 20px;">
+                <button class="btn btn-primary" onclick="resetAndPlay()">Play Again</button>
+                <button class="btn btn-warning" onclick="closeGameoverModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Insufficient Balance Modal -->
+    <div id="balanceModal" class="modal">
+        <div class="modal-content">
+            <div class="winner-icon">⚠️</div>
+            <h2>Insufficient Balance!</h2>
+            <p>You need at least <strong id="requiredBalance">5 ETB</strong> to play Mini Bingo.</p>
+            <div class="modal-buttons">
+                <button class="btn btn-success" onclick="chargeBalance()">💳 CHARGE BALANCE</button>
+                <button class="btn btn-warning" onclick="closeBalanceModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading game...</div>
+    </div>
+
+    <!-- Sound Toggle -->
+    <div class="sound-settings">
+        <div class="sound-toggle" onclick="toggleSound()">🔊</div>
+    </div>
+
+    <script src="/static/mini_bingo.js"></script>
+</body>
+</html>

@@ -1,0 +1,370 @@
+# telegram-bot/.gitignore
+# Estif Bingo 24/7 - Git Ignore File
+# Specifies intentionally untracked files to ignore
+
+# ==================== ENVIRONMENT & CONFIGURATION ====================
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+*.env
+!.env.example
+
+# ==================== DEPENDENCIES ====================
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+pythonenv*
+
+# ==================== PACKAGE MANAGERS ====================
+# pip
+pip-log.txt
+pip-delete-this-directory.txt
+.pip/
+
+# poetry
+poetry.lock
+poetry.toml
+
+# pipenv
+Pipfile.lock
+
+# ==================== DATABASE ====================
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.sql
+*.sql.gz
+*.sql.zip
+
+# PostgreSQL
+*.pgdata/
+postgresql.conf
+pg_hba.conf
+
+# ==================== LOGS ====================
+logs/
+*.log
+*.log.*
+*.log.gz
+*.log.zip
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# ==================== BACKUPS ====================
+backups/
+*.backup
+*.backup.gz
+*.backup.zip
+*.bak
+*.tmp
+*.temp
+
+# ==================== CACHE & TEMP FILES ====================
+*.cache
+*.cached
+.cache/
+.cached/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.hypothesis/
+*.prof
+*.profraw
+
+# ==================== IDE & EDITOR ====================
+# VSCode
+.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea_modules/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+.~*
+.*.swp
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ==================== OS GENERATED FILES ====================
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.dll
+*.exe
+*.msi
+*.lnk
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+*.trashed
+*.icloud
+.VolumeIcon.icns
+.directory
+
+# Linux
+.directory
+*.pid
+*.seed
+*.pid.lock
+*.socket
+
+# ==================== SECURITY & KEYS ====================
+*.key
+*.pem
+*.crt
+*.cer
+*.p12
+*.pfx
+*.der
+*.p8
+*.p7b
+*.p7c
+*.p7s
+*.p7r
+*.p7m
+*.p7z
+*.jks
+*.keystore
+*.truststore
+*.secret
+*.secrets
+*.token
+*.tokens
+*.jwt
+*.sig
+*.signature
+
+# ==================== CERTIFICATES ====================
+*.cert
+*.certificate
+*.crt
+*.csr
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+
+# ==================== API & CONFIGURATION ====================
+*.yaml
+*.yml
+!.github/workflows/*.yml
+!.github/workflows/*.yaml
+config.local.yaml
+config.local.yml
+
+# ==================== TESTING ====================
+.pytest_cache/
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+.coveralls.yml
+.coverage.*
+*.cover
+*.hypothesis/
+*.mypy_cache/
+*.ruff_cache/
+test-results/
+test-reports/
+junit.xml
+pytest.xml
+
+# ==================== FRONTEND (Static files) ====================
+# Node modules (if any frontend build tools)
+node_modules/
+package-lock.json
+yarn.lock
+bun.lockb
+
+# Build outputs
+dist/
+build/
+out/
+output/
+*.bundle.js
+*.bundle.css
+*.min.js
+*.min.css
+sourcemaps/
+
+# ==================== DATA FILES ====================
+data/*.csv
+data/*.xlsx
+data/*.xls
+data/*.json
+!data/cartelas_1000.json
+*.tmp.json
+*.temp.json
+
+# ==================== MEDIA & UPLOADS ====================
+uploads/
+media/
+static/uploads/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.ico
+*.svg
+*.webp
+*.mp3
+*.wav
+*.ogg
+*.mp4
+*.webm
+
+# ==================== DOCUMENTATION ====================
+docs/_build/
+docs/_autosummary/
+site/
+*.pdf
+*.docx
+*.odt
+
+# ==================== ARCHIVES ====================
+*.zip
+*.tar
+*.tar.gz
+*.tar.bz2
+*.tgz
+*.7z
+*.rar
+
+# ==================== DOCKER ====================
+*.dockerignore
+.docker/
+docker-compose.override.yml
+docker-compose.local.yml
+*.docker.tar
+*.docker.tar.gz
+
+# ==================== DEPLOYMENT ====================
+*.pid
+*.port
+*.sock
+*.socket
+*.lock
+*.deploy
+*.deployed
+*.deployment
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# ==================== RENDER DEPLOYMENT ====================
+.render/
+render.yaml
+!.github/workflows/render.yaml
+
+# ==================== HEROKU DEPLOYMENT ====================
+.heroku/
+heroku.yml
+Procfile
+!.github/workflows/heroku.yml
+
+# ==================== AWS DEPLOYMENT ====================
+.aws/
+aws/
+*.aws.json
+*.aws.yml
+
+# ==================== GCP DEPLOYMENT ====================
+.gcloud/
+gcloud/
+*.gcp.json
+*.gcp.yml
+
+# ==================== TELEGRAM BOT SPECIFIC ====================
+*.telegram
+*.bot
+*.webhook
+*.webapp
+
+# ==================== DEVELOPMENT TOOLS ====================
+.venv/
+.python-version
+.nvmrc
+.ruby-version
+.go-version
+.jdk-version
+.tool-versions
+.asdfrc
+
+# ==================== MISC ====================
+*.swp
+*.swo
+*~
+*.orig
+*.rej
+*.bak
+*.old
+*.new
+*.patch
+*.diff
+*.todo
+*.notes
+*.scratch
+*.draft
+*.wip
+*.local
+*.private
+*.secret

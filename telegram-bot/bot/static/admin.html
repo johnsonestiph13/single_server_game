@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Estif Bingo 24/7 - Admin Dashboard</title>
+    <link rel="stylesheet" href="/static/admin.css">
+    <style>
+        /* Additional neon/cyberpunk styles */
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-pink: #ff00ff;
+            --neon-yellow: #ffd700;
+            --neon-orange: #ff8c00;
+            --neon-purple: #9d00ff;
+            --neon-green: #00ff88;
+            --dark-bg: #0a0a1a;
+            --card-bg: rgba(10, 10, 26, 0.8);
+            --glow-cyan: 0 0 10px rgba(0, 243, 255, 0.5);
+            --glow-pink: 0 0 10px rgba(255, 0, 255, 0.5);
+            --glow-yellow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a0a2e 50%, #0a1a2e 100%);
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, rgba(0, 243, 255, 0.03) 0px, rgba(0, 243, 255, 0.03) 1px, transparent 1px, transparent 2px),
+                repeating-linear-gradient(90deg, rgba(255, 0, 255, 0.03) 0px, rgba(255, 0, 255, 0.03) 1px, transparent 1px, transparent 2px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header with neon glow */
+        .header {
+            background: rgba(10, 10, 26, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--neon-cyan);
+            box-shadow: var(--glow-cyan);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.1), transparent);
+            animation: scan 3s infinite;
+        }
+
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .logo h1 {
+            background: linear-gradient(135deg, var(--neon-yellow), var(--neon-orange), var(--neon-pink));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .admin-avatar {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            box-shadow: var(--glow-cyan);
+            animation: avatarGlow 3s infinite;
+        }
+
+        @keyframes avatarGlow {
+            0%, 100% { box-shadow: 0 0 10px rgba(0, 243, 255, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(255, 0, 255, 0.5); }
+        }
+
+        .logout-btn {
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: var(--neon-cyan);
+            color: #0a0a1a;
+            box-shadow: var(--glow-cyan);
+        }
+
+        /* Stat Cards - Neon Cyberpunk */
+        .stat-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-card:nth-child(1) { border-color: var(--neon-cyan); }
+        .stat-card:nth-child(2) { border-color: var(--neon-pink); }
+        .stat-card:nth-child(3) { border-color: var(--neon-yellow); }
+        .stat-card:nth-child(4) { border-color: var(--neon-green); }
+        .stat-card:nth-child(5) { border-color: var(--neon-purple); }
+        .stat-card:nth-child(6) { border-color: var(--neon-orange); }
+
+        .stat-card:nth-child(1) .stat-icon { color: var(--neon-cyan); text-shadow: var(--glow-cyan); }
+        .stat-card:nth-child(2) .stat-icon { color: var(--neon-pink); text-shadow: var(--glow-pink); }
+        .stat-card:nth-child(3) .stat-icon { color: var(--neon-yellow); text-shadow: var(--glow-yellow); }
+        .stat-card:nth-child(4) .stat-icon { color: var(--neon-green); text-shadow: 0 0 10px rgba(0, 255, 136, 0.5); }
+        .stat-card:nth-child(5) .stat-icon { color: var(--neon-purple); text-shadow: 0 0 10px rgba(157, 0, 255, 0.5); }
+        .stat-card:nth-child(6) .stat-icon { color: var(--neon-orange); text-shadow: 0 0 10px rgba(255, 140, 0, 0.5); }
+
+        .stat-value {
+            background: linear-gradient(135deg, #fff, var(--neon-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Tabs - Neon Style */
+        .tab-btn {
+            background: rgba(10, 10, 26, 0.8);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            color: var(--neon-cyan);
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            color: #0a0a1a;
+            border-color: var(--neon-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(0, 243, 255, 0.1);
+            border-color: var(--neon-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .card-title {
+            color: var(--neon-cyan);
+            border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: rgba(0, 243, 255, 0.1);
+            color: var(--neon-cyan);
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--neon-cyan);
+        }
+
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.1);
+        }
+
+        .data-table tr:hover {
+            background: rgba(0, 243, 255, 0.05);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            color: #0a0a1a;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--neon-green), #00cc66);
+            color: #0a0a1a;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            color: #fff;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--neon-yellow), #ff8800);
+            color: #0a0a1a;
+        }
+
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--neon-cyan);
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(10, 10, 26, 0.8);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        /* Search Box */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 15px;
+            background: rgba(10, 10, 26, 0.8);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 8px;
+            color: #fff;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--neon-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .page-btn {
+            padding: 6px 12px;
+            background: rgba(10, 10, 26, 0.8);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 6px;
+            color: var(--neon-cyan);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover {
+            background: var(--neon-cyan);
+            color: #0a0a1a;
+        }
+
+        .page-btn.active {
+            background: var(--neon-cyan);
+            color: #0a0a1a;
+        }
+
+        /* Status Badges */
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--neon-green);
+            border: 1px solid var(--neon-green);
+        }
+
+        .badge-danger {
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+            border: 1px solid #ff4444;
+        }
+
+        .badge-warning {
+            background: rgba(255, 215, 0, 0.2);
+            color: var(--neon-yellow);
+            border: 1px solid var(--neon-yellow);
+        }
+
+        .badge-info {
+            background: rgba(0, 243, 255, 0.2);
+            color: var(--neon-cyan);
+            border: 1px solid var(--neon-cyan);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(0, 243, 255, 0.3);
+            border-top-color: var(--neon-cyan);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--neon-cyan);
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--glow-cyan);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .modal-title {
+            color: var(--neon-cyan);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--neon-cyan);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Charts Container */
+        .chart-container {
+            background: rgba(10, 10, 26, 0.5);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        canvas {
+            max-height: 300px;
+        }
+
+        /* Two Column Layout */
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .two-columns {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .admin-info {
+                flex-direction: column;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(10, 10, 26, 0.5);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-cyan);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--neon-purple);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <h1>⚡ ESTIF BINGO 24/7 ⚡</h1>
+                <p>Cyberpunk Admin Dashboard | Real-time Multiplayer Bingo</p>
+            </div>
+            <div class="admin-info">
+                <div class="admin-avatar">👑</div>
+                <div class="admin-details">
+                    <h3 id="adminName">Admin</h3>
+                    <p id="adminEmail">admin@estifbingo.com</p>
+                </div>
+                <button class="logout-btn" onclick="logout()">🚪 LOGOUT</button>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-value" id="totalUsers">0</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎮</div>
+                <div class="stat-value" id="activeUsers">0</div>
+                <div class="stat-label">Active Now</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-value" id="totalVolume">0 ETB</div>
+                <div class="stat-label">Total Volume</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-value" id="totalWins">0 ETB</div>
+                <div class="stat-label">Total Wins Paid</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📊</div>
+                <div class="stat-value" id="houseEdge">0%</div>
+                <div class="stat-label">House Edge</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-value" id="winPercent">0%</div>
+                <div class="stat-label">Win Percentage</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="dashboard">📊 Dashboard</button>
+            <button class="tab-btn" data-tab="users">👥 Users</button>
+            <button class="tab-btn" data-tab="deposits">💰 Deposits</button>
+            <button class="tab-btn" data-tab="withdrawals">💸 Withdrawals</button>
+            <button class="tab-btn" data-tab="game">🎮 Game Control</button>
+            <button class="tab-btn" data-tab="reports">📈 Reports</button>
+            <button class="tab-btn" data-tab="settings">⚙️ Settings</button>
+        </div>
+
+        <!-- Tab: Dashboard -->
+        <div id="dashboard" class="tab-content active">
+            <div class="two-columns">
+                <div class="card">
+                    <div class="card-title">📊 Recent Activity</div>
+                    <div id="recentActivity">
+                        <div class="text-muted" style="text-align: center; padding: 20px;">Loading...</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">🎯 Game Statistics</div>
+                    <div id="gameStats">
+                        <div class="text-muted" style="text-align: center; padding: 20px;">Loading...</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">📈 Revenue Chart</div>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Users -->
+        <div id="users" class="tab-content">
+            <div class="card">
+                <div class="card-title">👥 User Management</div>
+                <div class="search-box">
+                    <input type="text" id="userSearch" class="search-input" placeholder="Search by username, phone or ID...">
+                    <button class="btn btn-primary" onclick="searchUsers()">🔍 Search</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="data-table" id="usersTable">
+                        <thead>
+                            <tr><th>ID</th><th>Username</th><th>Name</th><th>Balance</th><th>Games</th><th>Status</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr><td colspan="7" style="text-align: center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="usersPagination"></div>
+            </div>
+        </div>
+
+        <!-- Tab: Deposits -->
+        <div id="deposits" class="tab-content">
+            <div class="card">
+                <div class="card-title">💰 Pending Deposits</div>
+                <div style="overflow-x: auto;">
+                    <table class="data-table" id="depositsTable">
+                        <thead>
+                            <tr><th>ID</th><th>User</th><th>Amount</th><th>Method</th><th>Transaction ID</th><th>Date</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="depositsTableBody">
+                            <tr><td colspan="7" style="text-align: center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Withdrawals -->
+        <div id="withdrawals" class="tab-content">
+            <div class="card">
+                <div class="card-title">💸 Pending Withdrawals</div>
+                <div style="overflow-x: auto;">
+                    <table class="data-table" id="withdrawalsTable">
+                        <thead>
+                            <tr><th>ID</th><th>User</th><th>Amount</th><th>Method</th><th>Account</th><th>Date</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody id="withdrawalsTableBody">
+                            <tr><td colspan="7" style="text-align: center;">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Game Control -->
+        <div id="game" class="tab-content">
+            <div class="two-columns">
+                <div class="card">
+                    <div class="card-title">🎮 Game Controls</div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+                        <button class="btn btn-success" onclick="forceStartGame()">▶️ Force Start Round</button>
+                        <button class="btn btn-danger" onclick="forceStopGame()">⏹️ Force Stop Round</button>
+                        <button class="btn btn-warning" onclick="resetGame()">🔄 Reset Game</button>
+                    </div>
+                    <div id="gameStatus">
+                        <p><strong>Status:</strong> <span id="gameStatusText">-</span></p>
+                        <p><strong>Current Round:</strong> <span id="currentRound">-</span></p>
+                        <p><strong>Players in Game:</strong> <span id="playersInGame">-</span></p>
+                        <p><strong>Cartelas Selected:</strong> <span id="cartelasSelected">-</span></p>
+                        <p><strong>Called Numbers:</strong> <span id="calledNumbers">-</span></p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-title">⚙️ Game Settings</div>
+                    <div class="form-group">
+                        <label class="form-label">Win Percentage</label>
+                        <select id="winPercentage" class="form-control" onchange="updateWinPercentage()">
+                            <option value="75">75%</option>
+                            <option value="78">78%</option>
+                            <option value="79">79%</option>
+                            <option value="80">80%</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Default Sound Pack</label>
+                        <select id="soundPack" class="form-control" onchange="updateSoundPack()">
+                            <option value="pack1">🎵 Pack 1 - Classic Bingo</option>
+                            <option value="pack2">🎵 Pack 2 - Modern Beat</option>
+                            <option value="pack3">🎵 Pack 3 - Arcade Fun</option>
+                            <option value="pack4">🎵 Pack 4 - Casino Style</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Maintenance Mode</label>
+                        <select id="maintenanceMode" class="form-control" onchange="toggleMaintenanceMode()">
+                            <option value="false">🟢 Normal Operation</option>
+                            <option value="true">🔴 Maintenance Mode</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Reports -->
+        <div id="reports" class="tab-content">
+            <div class="card">
+                <div class="card-title">📈 Generate Reports</div>
+                <div class="two-columns">
+                    <div class="form-group">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" id="reportStartDate" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">End Date</label>
+                        <input type="date" id="reportEndDate" class="form-control">
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+                    <button class="btn btn-primary" onclick="generateReport('commission')">💰 Commission Report</button>
+                    <button class="btn btn-primary" onclick="generateReport('wins')">🏆 Wins Report</button>
+                    <button class="btn btn-primary" onclick="generateReport('total')">📊 Total Report</button>
+                    <button class="btn btn-success" onclick="exportReport()">📥 Export CSV</button>
+                </div>
+                <div id="reportResult">
+                    <div class="text-muted" style="text-align: center; padding: 20px;">Select dates and click a report button</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Settings -->
+        <div id="settings" class="tab-content">
+            <div class="two-columns">
+                <div class="card">
+                    <div class="card-title">🔐 Admin Settings</div>
+                    <div class="form-group">
+                        <label class="form-label">Change Password</label>
+                        <input type="password" id="newPassword" class="form-control" placeholder="New password">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm password">
+                    </div>
+                    <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+                </div>
+                <div class="card">
+                    <div class="card-title">📢 Broadcast Message</div>
+                    <div class="form-group">
+                        <label class="form-label">Message to all users</label>
+                        <textarea id="broadcastMessage" class="form-control" rows="4" placeholder="Type your message here..."></textarea>
+                    </div>
+                    <button class="btn btn-warning" onclick="sendBroadcast()">📡 Send Broadcast</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirm Action</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody"></div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="confirmAction()">Confirm</button>
+                <button class="btn" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/admin.js"></script>
+</body>
+</html>
