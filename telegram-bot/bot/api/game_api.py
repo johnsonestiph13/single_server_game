@@ -13,7 +13,7 @@ from bot.db.repository import (
     AuditRepository,
     active_game_cartelas,
 )
-from bot.api.auth import token_required, get_current_user
+from bot.api.auth import token_required, get_current_user_from_request as get_current_user
 from bot.config import config
 from bot.utils.logger import logger
 from bot.texts.emojis import get_emoji
