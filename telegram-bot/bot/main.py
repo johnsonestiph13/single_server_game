@@ -3,9 +3,7 @@
 # Initializes and runs the Telegram bot with all handlers
 
 import asyncio
-import logging
 import sys
-from datetime import datetime
 
 from telegram import Update
 from telegram.ext import (
@@ -130,7 +128,6 @@ from bot.handlers import (
 )
 
 from bot.game_engine.bingo_room import bingo_room
-from bot.game_engine.events import register_socket_events
 
 # Setup logger
 logger = setup_logger(__name__)
@@ -144,12 +141,7 @@ class EstifBingoBot:
         self.is_running = False
     
     async def initialize(self) -> bool:
-        """
-        Initialize the bot and all components.
-        
-        Returns:
-            bool: True if initialization successful
-        """
+        """Initialize the bot and all components."""
         try:
             logger.info("Initializing Estif Bingo 24/7 Bot...")
             
@@ -184,9 +176,6 @@ class EstifBingoBot:
             # Register all handlers
             self._register_handlers()
             logger.info("Handlers registered")
-            
-            # Initialize game engine (will be started when Flask runs)
-            # Game engine is handled separately in run.py
             
             self.is_running = True
             logger.info("Bot initialization completed successfully")
@@ -341,8 +330,6 @@ class EstifBingoBot:
         # Tournament commands (if enabled)
         if config.ENABLE_TOURNAMENT:
             app.add_handler(CommandHandler("tournament", tournament))
-            app.add_handler(CommandHandler("create_tournament", admin_create_tournament))
-            app.add_handler(CommandHandler("end_tournament", admin_end_tournament))
         
         # Admin commands
         app.add_handler(CommandHandler("admin", admin_command))
@@ -440,32 +427,6 @@ class EstifBingoBot:
         await db.close()
         
         logger.info("Bot shutdown complete")
-
-
-# ==================== FLASK INTEGRATION ====================
-
-def create_flask_app():
-    """Create Flask app for web interface and API"""
-    from flask import Flask, send_from_directory
-    
-    app = Flask(__name__, static_folder='static')
-    app.config['SECRET_KEY'] = config.JWT_SECRET
-    
-    # Register API blueprints
-    from bot.api import register_blueprints
-    register_blueprints(app)
-    
-    # Serve static files
-    @app.route('/static/<path:filename>')
-    def serve_static(filename):
-        return send_from_directory('static', filename)
-    
-    # Root endpoint
-    @app.route('/')
-    def index():
-        return send_from_directory('static', 'advanced_bingo.html')
-    
-    return app
 
 
 # ==================== MAIN ENTRY POINT ====================
