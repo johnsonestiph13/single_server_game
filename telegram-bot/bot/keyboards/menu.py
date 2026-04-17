@@ -800,3 +800,5 @@ __all__ = [
     'back_to_menu_keyboard',
     'cancel_keyboard',
 ]
+# ==================== ALIAS FOR BACKWARD COMPATIBILITY ====================
+menu = main_menu_keyboard  # ← ADD THIS ONE LINE

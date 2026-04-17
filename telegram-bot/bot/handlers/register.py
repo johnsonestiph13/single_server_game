@@ -8,7 +8,7 @@ from telegram.ext import ContextTypes, ConversationHandler
 from bot.db.repository.user_repo import UserRepository
 from bot.db.repository.auth_repo import AuthRepository
 from bot.texts.locales import TEXTS
-from bot.keyboards.menu import main_menu_keyboard as menu
+from bot.keyboards.menu import menu
 from bot.config import config
 from bot.utils.crypto import encrypt_phone, decrypt_phone
 from bot.utils.validators import is_valid_phone, normalize_phone
