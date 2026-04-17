@@ -260,6 +260,8 @@ class Application:
 
 # ==================== MAIN ENTRY POINT ====================
 
+# ... all your existing imports ...
+
 async def main():
     """Main async entry point"""
     app = Application()
@@ -269,6 +271,38 @@ async def main():
     if not success:
         logger.error("Failed to initialize application. Exiting...")
         sys.exit(1)
+    
+    # Auto-fix: Rename metadata columns if they exist
+    async def fix_column_names():
+        """Automatically rename metadata columns if they exist"""
+        try:
+            from bot.db.database import db
+            
+            # Check if column exists and rename it
+            check_query = """
+                SELECT column_name 
+                FROM information_schema.columns 
+                WHERE table_name='transactions' AND column_name='metadata';
+            """
+            result = await db.fetch_one(check_query)
+            
+            if result:
+                print("🔄 Renaming 'metadata' column to 'meta_data'...")
+                await db.execute("ALTER TABLE transactions RENAME COLUMN metadata TO meta_data;")
+                await db.execute("ALTER TABLE deposits RENAME COLUMN metadata TO meta_data;")
+                await db.execute("ALTER TABLE withdrawals RENAME COLUMN metadata TO meta_data;")
+                await db.execute("ALTER TABLE transfers RENAME COLUMN metadata TO meta_data;")
+                await db.execute("ALTER TABLE bonus_claims RENAME COLUMN metadata TO meta_data;")
+                await db.execute("ALTER TABLE tournament_registrations RENAME COLUMN metadata TO meta_data;")
+                await db.execute("ALTER TABLE admin_log RENAME COLUMN metadata TO meta_data;")
+                print("✅ Column rename completed!")
+            else:
+                print("✅ Columns already correct, no rename needed")
+        except Exception as e:
+            print(f"⚠️ Note: {e} (columns may already be correct)")
+    
+    # Run the fix after database is initialized
+    await fix_column_names()
     
     # Start application (blocks until Flask server stops)
     app.start()
