@@ -660,3 +660,5 @@ __all__ = [
     'sanitize_numeric',
     'sanitize_boolean',
 ]
+# ==================== ALIASES FOR BACKWARD COMPATIBILITY ====================
+validate_phone_number = is_valid_phone
