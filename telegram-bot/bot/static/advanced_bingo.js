@@ -507,8 +507,8 @@ function handleUnselectSuccess(data) {
 // ==================== GAME PLAY ====================
 
 function handleNumberCalled(data) {
-    // Play sound
-    playSound('draw');
+    // Play number-specific sound (uses numbered MP3 files like 1.mp3, 2.mp3, etc.)
+    playSound('number', data.number);
     
     // Update called numbers
     if (data.called_numbers) {
@@ -715,28 +715,77 @@ function initAudio() {
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
 }
 
-async function loadSound(soundName) {
-    const soundUrl = `/static/sounds/${currentSoundPack}/${soundName}.mp3`;
+async function loadSound(soundName, number = null) {
+    let fileName = soundName;
+    
+    // If it's a number sound, use the number as filename (e.g., 1.mp3, 2.mp3)
+    if (soundName === 'number' && number && number >= 1 && number <= 75) {
+        fileName = number.toString();
+    }
+    // For UI sounds (win, bingo, click)
+    else if (['win', 'bingo', 'click'].includes(soundName)) {
+        fileName = soundName;
+    }
+    // Fallback for any other sounds
+    else {
+        fileName = soundName;
+    }
+    
+    const soundUrl = `/static/sounds/${currentSoundPack}/${fileName}.mp3`;
     
     try {
         const response = await fetch(soundUrl);
+        if (!response.ok) {
+            // If sound file doesn't exist, try fallback
+            if (soundName === 'number') {
+                // Try generic draw sound as fallback
+                const fallbackUrl = `/static/sounds/${currentSoundPack}/draw.mp3`;
+                const fallbackResponse = await fetch(fallbackUrl);
+                if (fallbackResponse.ok) {
+                    const arrayBuffer = await fallbackResponse.arrayBuffer();
+                    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                    sounds[`number_${number}`] = audioBuffer;
+                }
+            }
+            return;
+        }
         const arrayBuffer = await response.arrayBuffer();
         const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        sounds[soundName] = audioBuffer;
+        
+        const cacheKey = soundName === 'number' ? `number_${number}` : soundName;
+        sounds[cacheKey] = audioBuffer;
     } catch (error) {
-        console.error(`Failed to load sound ${soundName}:`, error);
+        console.warn(`Failed to load sound ${fileName}:`, error);
     }
 }
 
-async function playSound(soundName) {
-    if (!soundEnabled || !sounds[soundName]) return;
+async function playSound(soundName, number = null) {
+    if (!soundEnabled) return;
+    
+    let cacheKey = soundName;
+    
+    if (soundName === 'number' && number && number >= 1 && number <= 75) {
+        cacheKey = `number_${number}`;
+        
+        // Load the number sound if not already loaded
+        if (!sounds[cacheKey]) {
+            await loadSound('number', number);
+        }
+    } else if (['win', 'bingo', 'click'].includes(soundName)) {
+        if (!sounds[soundName]) {
+            await loadSound(soundName);
+        }
+    }
+    
+    const soundBuffer = sounds[cacheKey];
+    if (!soundBuffer) return;
     
     if (audioContext.state === 'suspended') {
         await audioContext.resume();
     }
     
     const source = audioContext.createBufferSource();
-    source.buffer = sounds[soundName];
+    source.buffer = soundBuffer;
     source.connect(audioContext.destination);
     source.start();
 }
@@ -753,11 +802,13 @@ async function loadSoundSettings() {
         soundEnabled = savedEnabled === 'true';
     }
     
-    // Load all sounds
-    const soundNames = ['draw', 'win', 'bingo', 'click'];
-    for (const name of soundNames) {
+    // Pre-load UI sounds
+    const uiSounds = ['win', 'bingo', 'click'];
+    for (const name of uiSounds) {
         await loadSound(name);
     }
+    
+    // Number sounds will be loaded on-demand when numbers are called
 }
 
 async function changeSoundPack() {
@@ -765,9 +816,10 @@ async function changeSoundPack() {
     currentSoundPack = select.value;
     localStorage.setItem('soundPack', currentSoundPack);
     
-    // Reload sounds
-    const soundNames = ['draw', 'win', 'bingo', 'click'];
-    for (const name of soundNames) {
+    // Clear sound cache and reload UI sounds
+    sounds = {};
+    const uiSounds = ['win', 'bingo', 'click'];
+    for (const name of uiSounds) {
         await loadSound(name);
     }
     
