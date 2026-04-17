@@ -140,7 +140,7 @@ class Transaction(Base):
     amount: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
     balance_after: Mapped[Optional[float]] = mapped_column(Numeric(10, 2), nullable=True)
     reference_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
-    metadata: Mapped[Optional[Dict]] = mapped_column(JSONB, nullable=True)
+    meta_data: Mapped[Optional[Dict]] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     
     # Relationships
@@ -231,7 +231,7 @@ class Transfer(Base):
     sender_balance_after: Mapped[Optional[float]] = mapped_column(Numeric(10, 2), nullable=True)
     receiver_balance_before: Mapped[Optional[float]] = mapped_column(Numeric(10, 2), nullable=True)
     receiver_balance_after: Mapped[Optional[float]] = mapped_column(Numeric(10, 2), nullable=True)
-    metadata: Mapped[Optional[Dict]] = mapped_column(JSONB, nullable=True)
+    meta_data: Mapped[Optional[Dict]] = mapped_column(JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     
     # Relationships
@@ -323,7 +323,7 @@ class BonusClaim(Base):
     telegram_id: Mapped[int] = mapped_column(BigInteger, ForeignKey('users.telegram_id'))
     bonus_type: Mapped[str] = mapped_column(String(50), nullable=False)
     amount: Mapped[float] = mapped_column(Numeric(10, 2), nullable=False)
-    metadata: Mapped[Optional[Dict]] = mapped_column(JSONB, nullable=True)
+    meta_data: Mapped[Optional[Dict]] = mapped_column(JSONB, nullable=True)
     status: Mapped[str] = mapped_column(String(20), default='claimed')
     claimed_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
