@@ -10,7 +10,7 @@ from telegram.ext import ContextTypes
 from bot.db.repository.user_repo import UserRepository
 from bot.db.repository.audit_repo import AuditRepository
 from bot.texts.locales import TEXTS
-from bot.keyboards.menu import menu
+from bot.keyboards.menu import main_menu_keyboard as menu
 from bot.config import config
 from bot.utils.logger import logger
 from bot.texts.emojis import get_emoji
