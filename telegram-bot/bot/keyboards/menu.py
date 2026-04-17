@@ -802,3 +802,4 @@ __all__ = [
 ]
 # ==================== ALIAS FOR BACKWARD COMPATIBILITY ====================
 menu = main_menu_keyboard  # ← ADD THIS ONE LINE
+admin_menu = admin_panel_keyboard
