@@ -3,10 +3,10 @@
 # Handles real-time WebSocket events from the game client
 
 import asyncio
-from typing import Dict, Any, Optional
+
 from flask_socketio import SocketIO, emit, join_room, leave_room, disconnect
 from flask import request
-
+from typing import List, Dict, Any, Optional
 from bot.game_engine.bingo_room import bingo_room, GamePhase
 from bot.game_engine.cartela_manager import cartela_manager
 from bot.api.auth import verify_ws_token
