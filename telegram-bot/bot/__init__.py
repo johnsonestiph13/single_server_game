@@ -377,6 +377,7 @@ from bot.utils import (
     merge_dicts,
     retry,
     timing_decorator,
+    generate_reference_id,
 )
 
 
