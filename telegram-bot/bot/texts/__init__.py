@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 
 from bot.texts.emojis import (
     # Dictionaries
+    EMOJIS,  # ← MAKE SURE THIS IS IMPORTED
+    ALL_EMOJIS,
     BASIC_EMOJIS,
     GAME_EMOJIS,
     FINANCIAL_EMOJIS,
@@ -214,6 +216,7 @@ def is_language_supported(lang: str) -> bool:
 
 __all__ = [
     # Emojis
+    'EMOJIS',  # ← MAKE SURE THIS IS IMPORTED
     'BASIC_EMOJIS',
     'GAME_EMOJIS',
     'FINANCIAL_EMOJIS',
