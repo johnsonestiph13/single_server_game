@@ -128,33 +128,35 @@ class CustomLogger:
             self.logger.addHandler(error_handler)
             self._handlers['error_file'] = error_handler
     
-    def _log(self, level: int, message: str, extra: Optional[Dict] = None):
+    def _log(self, level: int, message: str, extra: Optional[Dict] = None, exc_info: bool = False):
         """Internal log method with extra data support"""
-        if extra:
+        if exc_info:
+            self.logger.log(level, message, exc_info=True, extra={'extra_data': extra} if extra else None)
+        elif extra:
             # Add extra data to log record
             self.logger._log(level, message, (), extra={'extra_data': extra})
         else:
             self.logger.log(level, message)
     
-    def debug(self, message: str, extra: Optional[Dict] = None):
+    def debug(self, message: str, extra: Optional[Dict] = None, exc_info: bool = False):
         """Log debug message"""
-        self._log(logging.DEBUG, message, extra)
+        self._log(logging.DEBUG, message, extra, exc_info)
     
-    def info(self, message: str, extra: Optional[Dict] = None):
+    def info(self, message: str, extra: Optional[Dict] = None, exc_info: bool = False):
         """Log info message"""
-        self._log(logging.INFO, message, extra)
+        self._log(logging.INFO, message, extra, exc_info)
     
-    def warning(self, message: str, extra: Optional[Dict] = None):
+    def warning(self, message: str, extra: Optional[Dict] = None, exc_info: bool = False):
         """Log warning message"""
-        self._log(logging.WARNING, message, extra)
+        self._log(logging.WARNING, message, extra, exc_info)
     
-    def error(self, message: str, extra: Optional[Dict] = None):
+    def error(self, message: str, extra: Optional[Dict] = None, exc_info: bool = False):
         """Log error message"""
-        self._log(logging.ERROR, message, extra)
+        self._log(logging.ERROR, message, extra, exc_info)
     
-    def critical(self, message: str, extra: Optional[Dict] = None):
+    def critical(self, message: str, extra: Optional[Dict] = None, exc_info: bool = False):
         """Log critical message"""
-        self._log(logging.CRITICAL, message, extra)
+        self._log(logging.CRITICAL, message, extra, exc_info)
     
     def exception(self, message: str, extra: Optional[Dict] = None):
         """Log exception with traceback"""
@@ -178,8 +180,6 @@ class CustomLogger:
         handler.setFormatter(logging.Formatter(DEFAULT_LOG_FORMAT))
         self.logger.addHandler(handler)
         return handler
-
-
 # ==================== LOGGER FACTORY ====================
 
 _loggers: Dict[str, CustomLogger] = {}
