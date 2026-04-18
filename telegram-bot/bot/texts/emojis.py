@@ -332,7 +332,8 @@ ALL_EMOJIS = {
     **FLAG_EMOJIS,
 }
 
-
+# Alias for backward compatibility
+    EMOJIS = ALL_EMOJIS
 # ==================== EMOJI FUNCTIONS ====================
 
 def get_emoji(key: str, default: str = '📌') -> str:
@@ -647,6 +648,7 @@ __all__ = [
     'NUMBER_EMOJIS',
     'LETTER_EMOJIS',
     'MEDAL_EMOJIS',
+    'EMOJIS',
     'ALL_EMOJIS',
     
     # Functions
