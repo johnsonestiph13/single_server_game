@@ -381,7 +381,7 @@ from bot.utils.main import generate_reference_id
 
 # ==================== MAIN BOT CLASS ====================
 
-from bot.main import EstifBingoBot, create_flask_app, run_bot
+from bot.main import EstifBingoBot, run_bot
 
 
 # ==================== PACKAGE EXPORTS ====================
