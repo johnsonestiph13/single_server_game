@@ -371,15 +371,13 @@ from bot.utils import (
     format_percentage,
     safe_divide,
     generate_token,
-    generate_reference_id,
     hash_token,
     safe_get,
     merge_dicts,
     retry,
     timing_decorator,
-    generate_reference_id,
 )
-
+from bot.utils.main import generate_reference_id
 
 # ==================== MAIN BOT CLASS ====================
 
