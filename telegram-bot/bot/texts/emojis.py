@@ -315,8 +315,7 @@ MEDAL_EMOJIS = {
     5: '🎖️',
 }
 
-# ==================== COMBINED EMOJI MAP ====================
-
+# ==================== ALL EMOJIS DICTIONARY ====================
 ALL_EMOJIS = {
     **BASIC_EMOJIS,
     **GAME_EMOJIS,
@@ -332,8 +331,8 @@ ALL_EMOJIS = {
     **FLAG_EMOJIS,
 }
 
-# Alias for backward compatibility
-    EMOJIS = ALL_EMOJIS
+# This line must be at column 0, no indentation
+EMOJIS = ALL_EMOJIS
 # ==================== EMOJI FUNCTIONS ====================
 
 def get_emoji(key: str, default: str = '📌') -> str:
