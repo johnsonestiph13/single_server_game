@@ -1,6 +1,5 @@
 # telegram-bot/run.py
 # Estif Bingo 24/7 - Main Application Entry Point
-# Combines Telegram bot, Flask API, WebSocket server, and game engine
 
 import os
 os.environ["EVENTLET_NO_GREENDNS"] = "yes"
@@ -17,7 +16,6 @@ from threading import Thread
 from datetime import datetime
 from typing import Optional
 
-# Apply monkey patch for eventlet to handle async properly
 import eventlet
 eventlet.monkey_patch()
 
@@ -34,7 +32,6 @@ from bot.game_engine.bingo_room import bingo_room
 from bot.game_engine.events import register_socket_events
 from bot.api import register_blueprints
 
-# Setup logger
 logger = setup_logger(__name__)
 
 
@@ -95,33 +92,15 @@ def create_flask_app() -> Flask:
 
 
 class Application:
-    """
-    ⚡ ULTIMATE APPLICATION CLASS - ZERO DOWNTIME ⚡
-    Hybrid, Fast, Efficient, Always Active
-    """
+    """Main application class that manages both the Telegram bot and Flask server."""
     
     def __init__(self):
         self.flask_app = None
         self.socketio = None
         self.bot = None
-        self.bot_thread: Optional[threading.Thread] = None
-        self.health_monitor_thread: Optional[threading.Thread] = None
+        self.bot_thread = None
         self.flask_thread = None
         self.is_running = False
-        self._stop_event = threading.Event()
-        self._lock = threading.RLock()
-        
-        # Recovery settings
-        self.MAX_RETRIES = 999
-        self.BASE_RETRY_DELAY = 1
-        self.HEALTH_CHECK_INTERVAL = 30
-        
-        # Metrics
-        self.metrics = {
-            'bot_restarts': 0,
-            'last_restart_time': None,
-            'startup_time': None
-        }
     
     async def initialize(self) -> bool:
         """Initialize all application components."""
@@ -136,7 +115,8 @@ class Application:
                 return False
             logger.info("✓ Configuration validated")
             
-            await db.initialize()
+            # Initialize database with retry
+            await self._init_database_with_retry()
             logger.info("✓ Database connection established")
             
             if not config.SKIP_AUTO_MIGRATIONS:
@@ -171,8 +151,6 @@ class Application:
             logger.info("✓ Bot initialized")
             
             self.is_running = True
-            self.metrics['startup_time'] = time.time()
-            
             logger.info("=" * 50)
             logger.info("Application initialized successfully!")
             logger.info(f"Bot URL: {config.BOT_API_URL}")
@@ -187,43 +165,39 @@ class Application:
             logger.error(f"Failed to initialize application: {e}", exc_info=True)
             return False
     
-def run_bot_sync(self):
-    """
-    Run bot in a way that works with eventlet's running event loop.
-    Uses thread isolation to avoid loop conflicts.
-    """
-    import threading
-    import asyncio
+    async def _init_database_with_retry(self):
+        """Initialize database connection with retry logic."""
+        max_retries = 5
+        for attempt in range(max_retries):
+            try:
+                await db.initialize()
+                return
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    raise
+                wait_time = 2 ** attempt
+                logger.warning(f"Database connection attempt {attempt + 1} failed: {e}")
+                logger.info(f"Retrying in {wait_time} seconds...")
+                await asyncio.sleep(wait_time)
     
-    def run_in_thread():
-        """Run bot in completely isolated thread with new event loop"""
-        # Create a brand new event loop for this thread
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+    def run_bot_sync(self):
+        """Run bot in isolated thread to avoid event loop conflicts."""
+        def run_in_thread():
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                loop.run_until_complete(self.bot.start_polling())
+            except Exception as e:
+                logger.error(f"Bot error: {e}", exc_info=True)
+            finally:
+                loop.close()
         
-        try:
-            loop.run_until_complete(self.bot.start_polling())
-        except Exception as e:
-            logger.error(f"Bot thread error: {e}", exc_info=True)
-        finally:
-            loop.close()
-    
-    # Start bot in separate daemon thread
-    bot_thread = threading.Thread(target=run_in_thread, daemon=True)
-    bot_thread.start()
-    logger.info("🤖 Bot started in isolated thread")
-    
-    def _health_monitor(self):
-        """Background health monitor"""
-        while not self._stop_event.is_set():
-            time.sleep(self.HEALTH_CHECK_INTERVAL)
-            
-            if self.bot_thread and not self.bot_thread.is_alive():
-                logger.warning("⚠️ Bot thread died! Restarting...")
-                self.run_bot_sync()
+        self.bot_thread = threading.Thread(target=run_in_thread, daemon=True)
+        self.bot_thread.start()
+        logger.info("🤖 Bot started in isolated thread")
     
     def run_flask_sync(self):
-        """Run the Flask server"""
+        """Run the Flask server."""
         try:
             self.socketio.run(
                 self.flask_app,
@@ -233,31 +207,22 @@ def run_bot_sync(self):
                 use_reloader=False
             )
         except Exception as e:
-            logger.error(f"Flask thread error: {e}", exc_info=True)
+            logger.error(f"Flask error: {e}", exc_info=True)
     
     def start(self):
-        """Start both the bot and Flask server with health monitoring"""
+        """Start both the bot and Flask server."""
         if not self.is_running:
             logger.error("Application not initialized. Call initialize() first.")
             return
         
-        # Start bot with recovery
         self.run_bot_sync()
-        
-        # Start health monitor
-        self.health_monitor_thread = threading.Thread(target=self._health_monitor, daemon=True)
-        self.health_monitor_thread.start()
-        logger.info(f"🩺 Health monitor started (interval: {self.HEALTH_CHECK_INTERVAL}s)")
-        
-        # Start Flask
         logger.info(f"Starting Flask server on port {config.PORT}...")
         self.run_flask_sync()
     
     async def shutdown(self):
-        """Shutdown all components gracefully"""
+        """Shutdown all components gracefully."""
         logger.info("Shutting down application...")
         self.is_running = False
-        self._stop_event.set()
         
         await bingo_room.force_stop()
         logger.info("✓ Game engine stopped")
@@ -267,15 +232,13 @@ def run_bot_sync(self):
             logger.info("✓ Bot stopped")
         
         await db.close()
-        logger.info("✓ Database connection closed")
+        logger.info("✓ Database closed")
         
         logger.info("Application shutdown complete")
 
 
-# ==================== MAIN ENTRY POINT ====================
-
 async def fix_column_names():
-    """Automatically rename metadata columns if they exist"""
+    """Auto-rename metadata columns if they exist."""
     try:
         from bot.db.database import db
         
@@ -297,13 +260,13 @@ async def fix_column_names():
             await db.execute("ALTER TABLE admin_log RENAME COLUMN metadata TO meta_data;")
             print("✅ Column rename completed!")
         else:
-            print("✅ Columns already correct, no rename needed")
+            print("✅ Columns already correct")
     except Exception as e:
-        print(f"⚠️ Note: {e} (columns may already be correct)")
+        print(f"⚠️ Note: {e}")
 
 
 async def main():
-    """Main async entry point"""
+    """Main async entry point."""
     app = Application()
     
     success = await app.initialize()
@@ -312,12 +275,11 @@ async def main():
         sys.exit(1)
     
     await fix_column_names()
-    
     app.start()
 
 
 def run():
-    """Synchronous entry point for running the application"""
+    """Synchronous entry point."""
     asyncio.run(main())
 
 
