@@ -197,21 +197,21 @@ class Application:
             logger.error(f"Failed to initialize application: {e}", exc_info=True)
             return False
     
-def run_bot_sync(self):
-    """Run the bot in synchronous mode (for threading)"""
-    try:
-        # asyncio.run creates and closes the loop automatically
-        asyncio.run(self.bot.start_polling())
-    except RuntimeError as e:
-        if "already running" in str(e):
-            # Fallback: create new loop
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
-            loop.run_until_complete(self.bot.start_polling())
-        else:
+    def run_bot_sync(self):
+        """Run the bot in synchronous mode (for threading)"""
+        try:
+            # asyncio.run creates and closes the loop automatically
+            asyncio.run(self.bot.start_polling())
+        except RuntimeError as e:
+            if "already running" in str(e):
+                # Fallback: create new loop
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                loop.run_until_complete(self.bot.start_polling())
+            else:
+                logger.error(f"Bot thread error: {e}", exc_info=True)
+        except Exception as e:
             logger.error(f"Bot thread error: {e}", exc_info=True)
-    except Exception as e:
-        logger.error(f"Bot thread error: {e}", exc_info=True)
     
     def run_flask_sync(self):
         """Run the Flask server in synchronous mode (for threading)"""
@@ -260,7 +260,6 @@ def run_bot_sync(self):
         logger.info("✓ Database connection closed")
         
         logger.info("Application shutdown complete")
-
 # ==================== MAIN ENTRY POINT ====================
 
 # ... all your existing imports ...
