@@ -197,21 +197,56 @@ class Application:
             logger.error(f"Failed to initialize application: {e}", exc_info=True)
             return False
     
-    def run_bot_sync(self):
-        """Run the bot in synchronous mode (for threading)"""
-        try:
-            # asyncio.run creates and closes the loop automatically
-            asyncio.run(self.bot.start_polling())
-        except RuntimeError as e:
-            if "already running" in str(e):
-                # Fallback: create new loop
+def run_bot_sync(self):
+    """
+    Production-grade bot runner with automatic recovery.
+    Optimized for Render + eventlet + asyncio.
+    """
+    import asyncio
+    import threading
+    import time
+    
+    MAX_RETRIES = 3
+    RETRY_DELAY = 2
+    
+    def run_with_recovery():
+        """Run bot with automatic restart on failure"""
+        retries = 0
+        
+        while retries < MAX_RETRIES:
+            try:
+                # Try nest_asyncio first
+                try:
+                    import nest_asyncio
+                    nest_asyncio.apply()
+                    asyncio.run(self.bot.start_polling())
+                    return
+                except ImportError:
+                    pass
+                
+                # Fallback: isolated event loop
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
-                loop.run_until_complete(self.bot.start_polling())
-            else:
-                logger.error(f"Bot thread error: {e}", exc_info=True)
-        except Exception as e:
-            logger.error(f"Bot thread error: {e}", exc_info=True)
+                try:
+                    loop.run_until_complete(self.bot.start_polling())
+                finally:
+                    loop.close()
+                return
+                
+            except Exception as e:
+                retries += 1
+                logger.error(f"Bot crashed (attempt {retries}/{MAX_RETRIES}): {e}")
+                
+                if retries < MAX_RETRIES:
+                    logger.info(f"Restarting bot in {RETRY_DELAY} seconds...")
+                    time.sleep(RETRY_DELAY)
+                else:
+                    logger.critical("❌ Bot failed after all retries! Check your configuration.")
+    
+    # Start bot in background thread
+    bot_thread = threading.Thread(target=run_with_recovery, daemon=True)
+    bot_thread.start()
+    logger.info("🤖 Bot started with automatic recovery enabled")
     
     def run_flask_sync(self):
         """Run the Flask server in synchronous mode (for threading)"""
