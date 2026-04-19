@@ -3,7 +3,7 @@
 # Combines Telegram bot, Flask API, WebSocket server, and game engine
 import os
 os.environ["EVENTLET_NO_GREENDNS"] = "yes"
-
+import nest_asyncio  # Add this import
 import asyncio
 import logging
 import sys
@@ -197,16 +197,21 @@ class Application:
             logger.error(f"Failed to initialize application: {e}", exc_info=True)
             return False
     
-    def run_bot_sync(self):
-        """Run the bot in synchronous mode (for threading)"""
+def run_bot_sync(self):
+    """Run the bot in synchronous mode (for threading)"""
+    try:
+        # Get the existing event loop or create one
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        
-        try:
-            loop.run_until_complete(self.bot.start_polling())
-        except Exception as e:
-            logger.error(f"Bot thread error: {e}", exc_info=True)
-        finally:
+    
+    try:
+        loop.run_until_complete(self.bot.start_polling())
+    except Exception as e:
+        logger.error(f"Bot thread error: {e}", exc_info=True)
+    finally:
+        if not loop.is_closed():
             loop.close()
     
     def run_flask_sync(self):
