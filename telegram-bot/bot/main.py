@@ -52,6 +52,7 @@ from bot.handlers import (
     confirm_transfer_callback,
     cancel_transfer_callback,
     cancel_transfer,
+    no_bonus_callback,
     
     # Game
     play_game,

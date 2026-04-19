@@ -1,20 +1,21 @@
 # telegram-bot/run.py
 # Estif Bingo 24/7 - Main Application Entry Point
 # Combines Telegram bot, Flask API, WebSocket server, and game engine
+import os
+os.environ["EVENTLET_NO_GREENDNS"] = "yes"
 
 import asyncio
 import logging
 import sys
-import os
 from threading import Thread
 from datetime import datetime
 
 # Apply monkey patch for eventlet to handle async properly
-import eventlet
+import eventlet  # noqa: F401
 eventlet.monkey_patch()
 
 from flask import Flask, send_from_directory, jsonify
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO  # noqa: F401
 from flask_cors import CORS
 
 from bot.config import config
@@ -25,7 +26,6 @@ from bot.main import EstifBingoBot
 from bot.game_engine.bingo_room import bingo_room
 from bot.game_engine.events import register_socket_events
 from bot.api import register_blueprints
-
 # Setup logger
 logger = setup_logger(__name__)
 
