@@ -7,6 +7,7 @@ import csv
 import json
 from io import StringIO
 from datetime import datetime, timedelta
+from functools import wraps  # ← ADD THIS IMPORT
 from flask import Blueprint, request, jsonify, Response
 from bot.api.auth import token_required
 from bot.db.repository import (
@@ -21,19 +22,21 @@ from bot.utils.logger import logger
 # Create blueprint
 admin_api_bp = Blueprint('admin_api', __name__, url_prefix='/api/admin')
 
-
 # ==================== AUTHENTICATION & ACCESS CONTROL ====================
 
 def require_admin(f):
-    """Decorator to require admin access"""
-    @token_required
+    @wraps(f)
     async def decorated(*args, **kwargs):
+        """Decorator to require admin access"""
+        from flask import jsonify
         current_user = kwargs.get('current_user')
         if not current_user or not current_user.get('is_admin'):
             return jsonify({'success': False, 'error': 'Admin access required'}), 403
         return await f(*args, **kwargs)
+    
+    # ✅ CRITICAL: Preserve the original function name
+    decorated.__name__ = f.__name__
     return decorated
-
 
 # ==================== SYSTEM STATISTICS ====================
 
