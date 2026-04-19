@@ -187,53 +187,31 @@ class Application:
             logger.error(f"Failed to initialize application: {e}", exc_info=True)
             return False
     
-    def run_bot_sync(self):
-        """
-        ULTIMATE BOT RUNNER - Hybrid strategy with automatic recovery.
-        Zero downtime guaranteed.
-        """
-        def run_with_recovery():
-            retries = 0
-            
-            while not self._stop_event.is_set():
-                try:
-                    # Strategy 1: Use nest_asyncio (already applied at top)
-                    asyncio.run(self.bot.start_polling())
-                    return
-                    
-                except RuntimeError as e:
-                    if "already running" in str(e) or "cannot be called" in str(e):
-                        # Strategy 2: Isolated event loop
-                        loop = asyncio.new_event_loop()
-                        asyncio.set_event_loop(loop)
-                        try:
-                            loop.run_until_complete(self.bot.start_polling())
-                        finally:
-                            loop.close()
-                        return
-                    else:
-                        raise
-                        
-                except Exception as e:
-                    retries += 1
-                    self.metrics['bot_restarts'] += 1
-                    self.metrics['last_restart_time'] = time.time()
-                    
-                    # Exponential backoff
-                    delay = min(self.BASE_RETRY_DELAY * (2 ** min(retries - 1, 5)), 60)
-                    
-                    logger.error(f"Bot crashed (restart #{retries}): {e}")
-                    
-                    if retries < self.MAX_RETRIES:
-                        logger.info(f"Restarting bot in {delay}s...")
-                        time.sleep(delay)
-                    else:
-                        logger.critical("Bot failed after all retries!")
-                        break
+def run_bot_sync(self):
+    """
+    Run bot in a way that works with eventlet's running event loop.
+    Uses thread isolation to avoid loop conflicts.
+    """
+    import threading
+    import asyncio
+    
+    def run_in_thread():
+        """Run bot in completely isolated thread with new event loop"""
+        # Create a brand new event loop for this thread
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
         
-        self.bot_thread = threading.Thread(target=run_with_recovery, daemon=True)
-        self.bot_thread.start()
-        logger.info("🤖 Bot started with zero-downtime recovery")
+        try:
+            loop.run_until_complete(self.bot.start_polling())
+        except Exception as e:
+            logger.error(f"Bot thread error: {e}", exc_info=True)
+        finally:
+            loop.close()
+    
+    # Start bot in separate daemon thread
+    bot_thread = threading.Thread(target=run_in_thread, daemon=True)
+    bot_thread.start()
+    logger.info("🤖 Bot started in isolated thread")
     
     def _health_monitor(self):
         """Background health monitor"""
