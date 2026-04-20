@@ -4,6 +4,8 @@
 
 import logging
 import os
+import asyncio
+import random
 from contextlib import asynccontextmanager
 from typing import Optional, List, Dict, Any, Tuple, Union
 from datetime import datetime
@@ -38,31 +40,99 @@ class Database:
             self._pool = None
             logger.info("Database instance created")
     
+    def _fix_database_url(self) -> str:
+        """Force fix the DATABASE_URL format"""
+        url = self.database_url
+        
+        if not url:
+            return url
+        
+        # Add sslmode=require if missing
+        if '?sslmode=require' not in url and 'sslmode=require' not in url:
+            if '?' in url:
+                url = url + '&sslmode=require'
+            else:
+                url = url + '?sslmode=require'
+            logger.info("🔧 Force added sslmode=require to DATABASE_URL")
+            self.database_url = url
+        
+        # Fix internal hostname to external if needed (for Render)
+        if 'dpg-' in url and '.oregon-postgres.render.com' not in url and '?sslmode' in url:
+            # Extract the database name and user
+            import re
+            match = re.search(r'@(dpg-[^:]+):', url)
+            if match:
+                internal_host = match.group(1)
+                external_host = f"{internal_host}.oregon-postgres.render.com"
+                url = url.replace(internal_host, external_host)
+                logger.info(f"🔧 Converted internal hostname to external: {external_host}")
+                self.database_url = url
+        
+        return url
+    
     async def initialize(self) -> None:
-        """Initialize connection pool"""
+        """Initialize connection pool with aggressive retry logic"""
         if self._pool is None:
-            try:
-                self._pool = await asyncpg.create_pool(
-                    self.database_url,
-                    min_size=self.min_pool_size,
-                    max_size=self.max_pool_size,
-                    command_timeout=self.command_timeout,
-                    max_queries=50000,
-                    max_inactive_connection_lifetime=300,
-                    setup=self._setup_connection
-                )
-                logger.info(f"Database connection pool created (min={self.min_pool_size}, max={self.max_pool_size})")
-            except Exception as e:
-                logger.error(f"Failed to create database connection pool: {e}")
-                raise
+            # Force fix the URL first
+            self._fix_database_url()
+            
+            max_retries = 10
+            base_delay = 1
+            max_delay = 30
+            
+            for attempt in range(max_retries):
+                try:
+                    logger.info(f"🔌 Database connection attempt {attempt + 1}/{max_retries}...")
+                    
+                    # Try to establish connection
+                    self._pool = await asyncpg.create_pool(
+                        self.database_url,
+                        min_size=self.min_pool_size,
+                        max_size=self.max_pool_size,
+                        command_timeout=self.command_timeout,
+                        max_queries=50000,
+                        max_inactive_connection_lifetime=300,
+                        setup=self._setup_connection
+                    )
+                    
+                    # Test the connection
+                    async with self._pool.acquire() as conn:
+                        result = await conn.fetchval("SELECT 1")
+                        if result == 1:
+                            logger.info(f"✅ Database connection pool created successfully! (attempt {attempt + 1})")
+                            logger.info(f"   Pool size: min={self.min_pool_size}, max={self.max_pool_size}")
+                            return
+                    
+                except Exception as e:
+                    error_msg = str(e)
+                    logger.warning(f"Attempt {attempt + 1} failed: {error_msg}")
+                    
+                    # Clean up failed pool
+                    if self._pool:
+                        await self._pool.close()
+                        self._pool = None
+                    
+                    if attempt < max_retries - 1:
+                        # Exponential backoff with jitter
+                        delay = min(base_delay * (2 ** attempt), max_delay)
+                        jitter = delay * 0.2 * random.random()
+                        wait_time = delay + jitter
+                        logger.info(f"🔄 Retrying in {wait_time:.1f} seconds...")
+                        await asyncio.sleep(wait_time)
+                    else:
+                        logger.error("❌ All database connection attempts failed!")
+                        raise
     
     async def _setup_connection(self, connection: Connection) -> None:
         """Setup connection settings"""
-        # Set timezone
-        await connection.execute("SET TIMEZONE = 'UTC'")
-        # Set application name
-        await connection.execute("SET application_name = 'estif_bingo_bot'")
-        logger.debug("Connection setup completed")
+        try:
+            # Set timezone
+            await connection.execute("SET TIMEZONE = 'UTC'")
+            # Set application name
+            await connection.execute("SET application_name = 'estif_bingo_bot'")
+            logger.debug("Connection setup completed")
+        except Exception as e:
+            logger.warning(f"Connection setup warning: {e}")
     
     async def close(self) -> None:
         """Close connection pool"""
