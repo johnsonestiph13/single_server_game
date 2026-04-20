@@ -188,7 +188,38 @@ async def language_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 parse_mode='Markdown'
             )
 
+async def check_joined_group(update: Update, context: ContextTypes.DEFAULT_TYPE) -> bool:
+    """Check if user has joined required channel/group"""
+    user_id = update.effective_user.id
+    user = await UserRepository.get_by_telegram_id(user_id)
+    
+    if user and user.get('joined_group'):
+        return True
+    
+    lang = user.get('lang', 'en') if user else 'en'
+    
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("📢 Channel", url=config.SUPPORT_CHANNEL_LINK)],
+        [InlineKeyboardButton("👥 Group", url=config.SUPPORT_GROUP_LINK)],
+        [InlineKeyboardButton("✅ Joined", callback_data="joined_group")]
+    ])
+    
+    await update.message.reply_text(
+        "🔔 *Please join our channels first:*" if lang == 'en' else "🔔 *እባክዎ መቀላቀል ይጠበቅብዎታል:*",
+        reply_markup=keyboard,
+        parse_mode='Markdown'
+    )
+    return False
 
+async def joined_group_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle user confirming they joined"""
+    query = update.callback_query
+    await query.answer()
+    
+    user_id = query.from_user.id
+    await UserRepository.update(user_id, {'joined_group': True})
+    
+    await query.edit_message_text("✅ Thanks for joining!")
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Show available commands and help information"""
     user_id = update.effective_user.id
